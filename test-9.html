@@ -161,6 +161,78 @@
             transform: none;
             opacity: 0.8;
         }
+
+        /* Nombre del producto en zona (visible solo en móvil) */
+        .quiz__zone-name {
+            display: none;
+        }
+
+        /* ===== MÓVIL ===== */
+        @media (max-width: 768px) {
+            .quiz--template-d .quiz__header {
+                padding: 2rem 1.5rem 0.75rem;
+            }
+            .quiz__drag-interface {
+                flex-direction: column-reverse;
+            }
+            .quiz__pool {
+                width: 100%;
+                flex: 1;
+                min-height: 0;
+            }
+            .quiz__drop-area {
+                width: 100%;
+                flex-direction: column;
+                align-items: center;
+                padding: 0.5rem 1rem;
+                gap: 0.3rem;
+                flex-shrink: 0;
+                justify-content: center;
+            }
+            .quiz__drop-zone {
+                width: 100%;
+                max-width: 340px;
+                height: 46px;
+                padding: 6px 10px;
+            }
+            .quiz__drop-plus {
+                font-size: 1.4rem;
+            }
+            .quiz__drag-label {
+                top: calc(100% + 4px);
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 0.55rem;
+                width: 60px;
+                opacity: 1;
+                text-align: center;
+            }
+            .quiz__drag-item:hover .quiz__drag-label {
+                opacity: 1;
+            }
+            .quiz__zone-name {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-family: "Optima", "Palatino Linotype", Palatino, serif;
+                color: #ff6b00;
+                text-transform: uppercase;
+                font-size: 0.72rem;
+                letter-spacing: 0.06em;
+                text-align: center;
+                width: 100%;
+                padding: 0 0.5rem;
+                box-sizing: border-box;
+                line-height: 1.2;
+            }
+            .quiz__zone-img {
+                display: none;
+            }
+            .quiz--template-d .quiz__next {
+                align-self: center;
+                margin: 0.4rem 0 0.8rem 0;
+            }
+        }
     </style>
 </head>
 <body class="quiz quiz--full quiz--template-d quiz--q9" data-question="9">
@@ -274,6 +346,8 @@
     function clearZone(zoneIndex) {
         var existing = zoneEls[zoneIndex].querySelector(".quiz__zone-img");
         if (existing) zoneEls[zoneIndex].removeChild(existing);
+        var nameEl = zoneEls[zoneIndex].querySelector(".quiz__zone-name");
+        if (nameEl) zoneEls[zoneIndex].removeChild(nameEl);
     }
 
     function renderZone(zoneIndex, product) {
@@ -296,6 +370,15 @@
         });
 
         zoneEls[zoneIndex].appendChild(img);
+
+        /* Nombre del producto (visible en móvil en lugar de imagen) */
+        var labelEl = getPoolItem(product).querySelector(".quiz__drag-label");
+        var nameSpan = document.createElement("span");
+        nameSpan.className = "quiz__zone-name";
+        nameSpan.textContent = labelEl
+            ? labelEl.textContent.replace(/\s+/g, " ").trim()
+            : product;
+        zoneEls[zoneIndex].appendChild(nameSpan);
     }
 
     function updateAnswer() {
@@ -405,6 +488,96 @@
     nextBtn.addEventListener("click", function (e) {
         if (!nextBtn.classList.contains("is-active")) e.preventDefault();
     });
+
+    /* -------- Soporte táctil (móvil) -------- */
+    (function () {
+        var touchItem = null;
+
+        function zoneFromPoint(x, y) {
+            var hit = document.elementFromPoint(x, y);
+            while (hit && hit !== document.body) {
+                if (hit.dataset && hit.dataset.zone !== undefined) return hit;
+                hit = hit.parentElement;
+            }
+            return null;
+        }
+
+        pool.querySelectorAll(".quiz__drag-item").forEach(function (item) {
+            var product = item.dataset.product;
+
+            item.addEventListener("touchstart", function (e) {
+                e.preventDefault();
+                touchItem = { product: product, fromZone: null };
+            }, { passive: false });
+
+            item.addEventListener("touchmove", function (e) {
+                e.preventDefault();
+            }, { passive: false });
+
+            item.addEventListener("touchend", function (e) {
+                e.preventDefault();
+                if (!touchItem) return;
+                var t = e.changedTouches[0];
+                var zone = zoneFromPoint(t.clientX, t.clientY);
+                if (zone) {
+                    var zi = parseInt(zone.dataset.zone, 10);
+                    var existing = zoneContent[zi];
+                    hidePoolItem(product);
+                    if (existing !== null) {
+                        showPoolItem(existing);
+                        clearZone(zi);
+                    }
+                    zoneContent[zi] = product;
+                    renderZone(zi, product);
+                    updateAnswer();
+                }
+                touchItem = null;
+            }, { passive: false });
+        });
+
+        zoneEls.forEach(function (zone, zi) {
+            zone.addEventListener("touchstart", function (e) {
+                if (zoneContent[zi] === null) return;
+                e.preventDefault();
+                touchItem = { product: zoneContent[zi], fromZone: zi };
+            }, { passive: false });
+
+            zone.addEventListener("touchmove", function (e) {
+                if (touchItem && touchItem.fromZone === zi) e.preventDefault();
+            }, { passive: false });
+
+            zone.addEventListener("touchend", function (e) {
+                if (!touchItem || touchItem.fromZone !== zi) { touchItem = null; return; }
+                e.preventDefault();
+                var t = e.changedTouches[0];
+                var targetZone = zoneFromPoint(t.clientX, t.clientY);
+                var product = touchItem.product;
+
+                if (targetZone) {
+                    var tzi = parseInt(targetZone.dataset.zone, 10);
+                    if (tzi !== zi) {
+                        var existing = zoneContent[tzi];
+                        if (existing !== null) {
+                            zoneContent[zi] = existing;
+                            renderZone(zi, existing);
+                        } else {
+                            zoneContent[zi] = null;
+                            clearZone(zi);
+                        }
+                        zoneContent[tzi] = product;
+                        renderZone(tzi, product);
+                    }
+                } else {
+                    zoneContent[zi] = null;
+                    clearZone(zi);
+                    showPoolItem(product);
+                }
+
+                updateAnswer();
+                touchItem = null;
+            }, { passive: false });
+        });
+    }());
 
 })();
 </script>

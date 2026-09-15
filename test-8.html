@@ -10,13 +10,14 @@
         /* Fix: evitar desbordamiento y barra de desplazamiento lateral */
         .quiz__panel--question {
             overflow: hidden;
+            box-sizing: border-box;
         }
         .quiz__panel--question .quiz__question {
-            font-size: 1.3rem;
-            margin-bottom: 1.25rem;
+            margin-bottom: 1rem;
         }
         .quiz__option {
-            padding: 0.6rem 1rem;
+            padding: 0.45rem 1rem;
+            line-height: 1.3;
         }
     </style>
 </head>

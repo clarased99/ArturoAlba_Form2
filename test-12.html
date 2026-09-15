@@ -228,9 +228,9 @@
             .quiz__zone-img {
                 display: none;
             }
-            .quiz--template-d .quiz__next {
-                align-self: center;
-                margin: 0.4rem 0 0.8rem 0;
+            .quiz__drag-interface .quiz__drag-hint {
+                flex-shrink: 0;
+                padding: 0.4rem 1rem;
             }
         }
     </style>
@@ -375,6 +375,11 @@
             try { sessionStorage.setItem("respuesta-" + page, sorted.join("+")); } catch (e) {}
             nextBtn.classList.add("is-active");
             nextBtn.removeAttribute("aria-disabled");
+            if (window.innerWidth <= 768) {
+                setTimeout(function () {
+                    nextBtn.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                }, 200);
+            }
         } else {
             try { sessionStorage.removeItem("respuesta-" + page); } catch (e) {}
             nextBtn.classList.remove("is-active");
@@ -473,16 +478,61 @@
         updateAnswer();
     });
 
+    /* -------- Botón Siguiente: guard -------- */
+
     nextBtn.addEventListener("click", function (e) {
         if (!nextBtn.classList.contains("is-active")) e.preventDefault();
     });
 
-    /* -------- Soporte táctil (móvil) -------- */
+    /* -------- Hint en móvil: justo debajo de los rectángulos -------- */
     (function () {
-        var touchItem = null;
+        var hintEl     = document.querySelector(".quiz__drag-hint");
+        var dropAreaEl = document.querySelector(".quiz__drop-area");
+        var dragIfEl   = document.querySelector(".quiz__drag-interface");
+        if (!hintEl || !dropAreaEl || !dragIfEl) return;
+        var origParent = hintEl.parentElement;
+        var origNext   = hintEl.nextSibling;
+        function reposition() {
+            if (window.innerWidth <= 768) {
+                dragIfEl.insertBefore(hintEl, dropAreaEl);
+            } else {
+                origParent.insertBefore(hintEl, origNext);
+            }
+        }
+        reposition();
+        window.addEventListener("resize", reposition);
+    }());
+
+    /* -------- Soporte táctil con ghost (móvil) -------- */
+    (function () {
+        var touchItem  = null;
+        var ghost      = null;
+        var hoverZone  = null;
+
+        function createGhost(srcImg, x, y) {
+            var g = document.createElement("img");
+            g.src = srcImg.src;
+            g.style.cssText = "position:fixed;pointer-events:none;z-index:9999;width:auto;max-height:100px;opacity:0.85;transform:translate(-50%,-50%);top:" + y + "px;left:" + x + "px;";
+            document.body.appendChild(g);
+            return g;
+        }
+
+        function moveGhost(x, y) {
+            if (!ghost) return;
+            ghost.style.left = x + "px";
+            ghost.style.top  = y + "px";
+        }
+
+        function removeGhost() {
+            if (!ghost) return;
+            document.body.removeChild(ghost);
+            ghost = null;
+        }
 
         function zoneFromPoint(x, y) {
+            if (ghost) ghost.style.display = "none";
             var hit = document.elementFromPoint(x, y);
+            if (ghost) ghost.style.display = "";
             while (hit && hit !== document.body) {
                 if (hit.dataset && hit.dataset.zone !== undefined) return hit;
                 hit = hit.parentElement;
@@ -490,20 +540,40 @@
             return null;
         }
 
+        function highlightZone(zone) {
+            if (hoverZone === zone) return;
+            if (hoverZone) hoverZone.classList.remove("is-over");
+            hoverZone = zone;
+            if (hoverZone) hoverZone.classList.add("is-over");
+        }
+
+        function clearHighlight() {
+            if (hoverZone) hoverZone.classList.remove("is-over");
+            hoverZone = null;
+        }
+
         pool.querySelectorAll(".quiz__drag-item").forEach(function (item) {
             var product = item.dataset.product;
+            var img = item.querySelector("img");
 
             item.addEventListener("touchstart", function (e) {
                 e.preventDefault();
                 touchItem = { product: product, fromZone: null };
+                var t = e.touches[0];
+                ghost = createGhost(img, t.clientX, t.clientY);
             }, { passive: false });
 
             item.addEventListener("touchmove", function (e) {
                 e.preventDefault();
+                var t = e.touches[0];
+                moveGhost(t.clientX, t.clientY);
+                highlightZone(zoneFromPoint(t.clientX, t.clientY));
             }, { passive: false });
 
             item.addEventListener("touchend", function (e) {
                 e.preventDefault();
+                clearHighlight();
+                removeGhost();
                 if (!touchItem) return;
                 var t = e.changedTouches[0];
                 var zone = zoneFromPoint(t.clientX, t.clientY);
@@ -528,15 +598,24 @@
                 if (zoneContent[zi] === null) return;
                 e.preventDefault();
                 touchItem = { product: zoneContent[zi], fromZone: zi };
+                var t = e.touches[0];
+                var srcImg = getPoolItem(zoneContent[zi]).querySelector("img");
+                ghost = createGhost(srcImg, t.clientX, t.clientY);
             }, { passive: false });
 
             zone.addEventListener("touchmove", function (e) {
-                if (touchItem && touchItem.fromZone === zi) e.preventDefault();
+                if (!touchItem || touchItem.fromZone !== zi) return;
+                e.preventDefault();
+                var t = e.touches[0];
+                moveGhost(t.clientX, t.clientY);
+                highlightZone(zoneFromPoint(t.clientX, t.clientY));
             }, { passive: false });
 
             zone.addEventListener("touchend", function (e) {
-                if (!touchItem || touchItem.fromZone !== zi) { touchItem = null; return; }
+                if (!touchItem || touchItem.fromZone !== zi) { removeGhost(); touchItem = null; return; }
                 e.preventDefault();
+                clearHighlight();
+                removeGhost();
                 var t = e.changedTouches[0];
                 var targetZone = zoneFromPoint(t.clientX, t.clientY);
                 var product = touchItem.product;

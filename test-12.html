@@ -6,52 +6,396 @@
     <title>Pregunta 12 — La Fórmula del Saber | Arturo Alba</title>
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="css/main.css">
-</head>
-<body class="quiz quiz--full quiz--q12" data-question="12">
+    <style>
+        /* ===== TEMPLATE D: Drag & Drop ===== */
 
-<a href="index.html" class="quiz__restart">
-    <span class="quiz__restart-arrow" aria-hidden="true">&#8592;</span>
-    <span>Volver a empezar</span>
-</a>
+        .quiz--template-d .quiz__panel--full {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 0;
+            gap: 0;
+            overflow: hidden;
+        }
+
+        .quiz--template-d .quiz__header {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 3.5rem 4rem 1rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .quiz--template-d .quiz__question.quiz__question--center {
+            margin: 0 auto;
+            max-width: 72rem;
+            text-align: center;
+        }
+
+        .quiz--template-d .quiz__drag-hint {
+            font-family: "Silka", sans-serif;
+            color: rgba(255, 255, 255, 0.48);
+            font-size: 0.88rem;
+            letter-spacing: normal;
+            text-transform: none;
+            text-align: center;
+            width: 100%;
+            flex-shrink: 0;
+            padding: 0.6rem 0;
+            box-sizing: border-box;
+        }
+
+        .quiz__drag-interface {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        .quiz__pool {
+            position: relative;
+            width: 66.67%;
+            flex-shrink: 0;
+        }
+
+        .quiz__drag-item {
+            position: absolute;
+            cursor: grab;
+            user-select: none;
+            transform: rotate(var(--rot, 0deg));
+            transition: transform 0.18s ease;
+            z-index: 1;
+        }
+
+        .quiz__drag-item:hover {
+            transform: rotate(var(--rot, 0deg)) scale(1.07);
+            z-index: 10;
+        }
+
+        .quiz__drag-item:active {
+            cursor: grabbing;
+        }
+
+        .quiz__drag-item img {
+            display: block;
+            max-height: 220px;
+            width: auto;
+            pointer-events: none;
+            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.55));
+        }
+
+        .quiz__drag-label {
+            position: absolute;
+            left: calc(100% + 14px);
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: "Optima", "Palatino Linotype", Palatino, serif;
+            color: #ffffff;
+            text-transform: uppercase;
+            font-size: 1.15rem;
+            letter-spacing: 0.07em;
+            line-height: 1.25;
+            white-space: normal;
+            width: 200px;
+            text-align: left;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .quiz__drag-item:hover .quiz__drag-label {
+            opacity: 1;
+        }
+
+        .quiz__drop-area {
+            width: 33.33%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.25rem;
+            padding: 2rem;
+        }
+
+        .quiz__drop-zone {
+            width: 200px;
+            height: 290px;
+            border: 1.5px solid #ff6b00;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+            flex-shrink: 0;
+        }
+
+        .quiz__drop-zone.is-over {
+            background-color: rgba(224, 118, 48, 0.12);
+            border-color: #ff6b00;
+        }
+
+        .quiz__drop-zone .quiz__zone-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            cursor: grab;
+        }
+
+        .quiz__drop-plus {
+            font-family: "Optima", "Palatino Linotype", Palatino, serif;
+            color: #ff6b00;
+            font-size: 5rem;
+            font-weight: bolder;
+            flex-shrink: 0;
+            user-select: none;
+        }
+
+        .quiz--template-d .quiz__next {
+            align-self: flex-end;
+            margin: 0 3.5rem 2rem 0;
+        }
+
+        .quiz--template-d .quiz__next.is-active:hover,
+        .quiz--template-d .quiz__next.is-active:focus-visible {
+            transform: none;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body class="quiz quiz--full quiz--template-d quiz--q12" data-question="12">
 
 <main class="quiz__panel--full">
-    <div class="quiz__full-inner">
-        <h1 class="quiz__question quiz__question--center">Si una persona tiene la piel madura, quiere tratar arrugas y le gustan las texturas ricas/densas, &#191;qu&#233; combinaci&#243;n crees que le vendr&#237;a mejor?</h1>
 
-        <ul class="quiz__image-options" role="listbox" aria-label="Opciones de respuesta">
-            <li role="presentation">
-                <button type="button" class="quiz__image-option quiz__answer" data-value="A" role="option" aria-selected="false">
-                    <img src="assets/images/test-12-infusion.png" alt="Infusi&#243;n Absoluta + Bruma">
-                    <span class="quiz__image-option-label">Infusi&#243;n Absoluta<br>+ Bruma</span>
-                </button>
-            </li>
-            <li role="presentation">
-                <button type="button" class="quiz__image-option quiz__answer" data-value="B" role="option" aria-selected="false">
-                    <img src="assets/images/test-12-retinoidehidro.png" alt="Retinoide Extremo + Hidrolip&#237;dica">
-                    <span class="quiz__image-option-label">Retinoide Extremo<br>+ Hidrolip&#237;dica</span>
-                </button>
-            </li>
-            <li role="presentation">
-                <button type="button" class="quiz__image-option quiz__answer" data-value="C" role="option" aria-selected="false">
-                    <img src="assets/images/test-12-limpiadora.png" alt="Limpiadora Espumosa + Bruma">
-                    <span class="quiz__image-option-label">Limpiadora Espumosa<br>+ Bruma</span>
-                </button>
-            </li>
-            <li role="presentation">
-                <button type="button" class="quiz__image-option quiz__answer" data-value="D" data-correct="true" role="option" aria-selected="false">
-                    <img src="assets/images/test-12-rapsodia.png" alt="Retinoide Extremo + Rapsodia">
-                    <span class="quiz__image-option-label">Retinoide Extremo<br>+ Rapsodia</span>
-                </button>
-            </li>
-        </ul>
+    <div class="quiz__header">
+        <h1 class="quiz__question quiz__question--center">Si una persona tiene la piel madura, quiere tratar arrugas y le gustan las texturas ricas/densas, &#191;qu&#233; combinaci&#243;n crees que le vendr&#237;a mejor?</h1>
     </div>
 
-    <a href="z-final.html" class="quiz__next" id="nextBtn" aria-disabled="true">
-        <span>VER RESULTADOS</span>
-        <span class="quiz__next-arrow" aria-hidden="true">&#8594;</span>
-    </a>
+    <div class="quiz__drag-interface">
+
+        <!-- Pool: 6 productos dispersos en 2/3 de la pantalla -->
+        <div class="quiz__pool" id="pool">
+
+            <div class="quiz__drag-item" id="item-infusion" data-product="infusion"
+                 draggable="true" style="left:23%;top:5%;--rot:-7deg">
+                <img src="assets/images/test-12-infusion-D.png" alt="Infusi&#243;n Absoluta Exo-Pept&#237;dica" draggable="false">
+                <span class="quiz__drag-label">Infusi&#243;n <br> Absoluta <br> Exo-Pept&#237;dica</span>
+            </div>
+
+            <div class="quiz__drag-item" id="item-bruma" data-product="bruma"
+                 draggable="true" style="left:49%;top:3%;--rot:5deg">
+                <img src="assets/images/test-12-bruma-D.png" alt="Bruma Fitoactiva Calmante" draggable="false">
+                <span class="quiz__drag-label">Bruma <br> Fitoactiva <br> Calmante</span>
+            </div>
+
+            <div class="quiz__drag-item" id="item-retinoide" data-product="retinoide"
+                 draggable="true" style="left:10%;top:39%;--rot:-4deg">
+                <img src="assets/images/test-12-retinoide-D.png" alt="Retinoide Extremo" draggable="false">
+                <span class="quiz__drag-label">Retinoide Extremo</span>
+            </div>
+
+            <div class="quiz__drag-item" id="item-hidrolipidica" data-product="hidrolipidica"
+                 draggable="true" style="left:68%;top:32%;--rot:-10deg">
+                <img src="assets/images/test-12-hidrolipidica-D.png" alt="Hidratante Regenerante Hidrolip&#237;dica" draggable="false">
+                <span class="quiz__drag-label">Hidratante Regenerante Hidrolip&#237;dica</span>
+            </div>
+
+            <div class="quiz__drag-item" id="item-limpiadora-espumosa" data-product="limpiadora-espumosa"
+                 draggable="true" style="left:26%;top:61%;--rot:-6deg">
+                <img src="assets/images/test-12-limpiadora-espumosa-D.png" alt="Limpiadora Espumosa Recuperadora" draggable="false">
+                <span class="quiz__drag-label">Limpiadora Espumosa Recuperadora</span>
+            </div>
+
+            <div class="quiz__drag-item" id="item-rapsodia" data-product="rapsodia"
+                 draggable="true" style="left:54%;top:70%;--rot:3deg">
+                <img src="assets/images/test-12-rapsodia-D.png" alt="Rapsodia Alta Recuperaci&#243;n" draggable="false">
+                <span class="quiz__drag-label">Rapsodia Alta <br> Recuperaci&#243;n</span>
+            </div>
+
+        </div>
+
+        <!-- Zona de drop -->
+        <div class="quiz__drop-area">
+            <div class="quiz__drop-zone" id="zone-0" data-zone="0"></div>
+            <div class="quiz__drop-plus" aria-hidden="true">+</div>
+            <div class="quiz__drop-zone" id="zone-1" data-zone="1"></div>
+        </div>
+
+    </div>
+
+    <p class="quiz__drag-hint">Arrastra un producto a cada rect&#225;ngulo</p>
+
+    <a href="z-final.html" class="quiz__next" aria-disabled="true">VER RESULTADO &#8594;</a>
+
 </main>
 
-<script src="js/quiz.js"></script>
+<script>
+(function () {
+    "use strict";
+
+    var body    = document.body;
+    var page    = body.dataset.question;
+    var nextBtn = document.querySelector(".quiz__next");
+    var pool    = document.getElementById("pool");
+    var zoneEls = [
+        document.getElementById("zone-0"),
+        document.getElementById("zone-1")
+    ];
+
+    var zoneContent = [null, null];
+    var dragState = null;
+
+    function getPoolItem(product) {
+        return document.getElementById("item-" + product);
+    }
+
+    function hidePoolItem(product) {
+        var el = getPoolItem(product);
+        if (el) el.style.visibility = "hidden";
+    }
+
+    function showPoolItem(product) {
+        var el = getPoolItem(product);
+        if (el) el.style.visibility = "visible";
+    }
+
+    function clearZone(zoneIndex) {
+        var existing = zoneEls[zoneIndex].querySelector(".quiz__zone-img");
+        if (existing) zoneEls[zoneIndex].removeChild(existing);
+    }
+
+    function renderZone(zoneIndex, product) {
+        clearZone(zoneIndex);
+
+        var sourceImg = getPoolItem(product).querySelector("img");
+        var img = document.createElement("img");
+        img.src       = sourceImg.src;
+        img.alt       = sourceImg.alt;
+        img.className = "quiz__zone-img";
+        img.draggable = true;
+
+        img.addEventListener("dragstart", function (e) {
+            dragState = { product: product, fromZone: zoneIndex };
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", product);
+        });
+        img.addEventListener("dragend", function () {
+            dragState = null;
+        });
+
+        zoneEls[zoneIndex].appendChild(img);
+    }
+
+    function updateAnswer() {
+        if (zoneContent[0] !== null && zoneContent[1] !== null) {
+            var sorted = [zoneContent[0], zoneContent[1]].sort();
+            try { sessionStorage.setItem("respuesta-" + page, sorted.join("+")); } catch (e) {}
+            nextBtn.classList.add("is-active");
+            nextBtn.removeAttribute("aria-disabled");
+        } else {
+            try { sessionStorage.removeItem("respuesta-" + page); } catch (e) {}
+            nextBtn.classList.remove("is-active");
+            nextBtn.setAttribute("aria-disabled", "true");
+        }
+    }
+
+    pool.querySelectorAll(".quiz__drag-item").forEach(function (item) {
+        var product = item.dataset.product;
+
+        item.addEventListener("dragstart", function (e) {
+            dragState = { product: product, fromZone: null };
+            e.dataTransfer.effectAllowed = "move";
+            e.dataTransfer.setData("text/plain", product);
+            setTimeout(function () { item.style.visibility = "hidden"; }, 0);
+        });
+
+        item.addEventListener("dragend", function () {
+            if (zoneContent.indexOf(product) === -1) {
+                item.style.visibility = "visible";
+            }
+            dragState = null;
+        });
+    });
+
+    zoneEls.forEach(function (zone, zoneIndex) {
+
+        zone.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+            zone.classList.add("is-over");
+        });
+
+        zone.addEventListener("dragleave", function (e) {
+            if (!zone.contains(e.relatedTarget)) {
+                zone.classList.remove("is-over");
+            }
+        });
+
+        zone.addEventListener("drop", function (e) {
+            e.preventDefault();
+            zone.classList.remove("is-over");
+            if (!dragState) return;
+
+            var incoming = dragState.product;
+            var fromZone = dragState.fromZone;
+            var existing = zoneContent[zoneIndex];
+
+            if (fromZone === zoneIndex) {
+                dragState = null;
+                return;
+            }
+
+            if (fromZone === null) {
+                hidePoolItem(incoming);
+                if (existing !== null) {
+                    showPoolItem(existing);
+                    clearZone(zoneIndex);
+                }
+            } else {
+                if (existing !== null) {
+                    zoneContent[fromZone] = existing;
+                    renderZone(fromZone, existing);
+                } else {
+                    zoneContent[fromZone] = null;
+                    clearZone(fromZone);
+                }
+            }
+
+            zoneContent[zoneIndex] = incoming;
+            renderZone(zoneIndex, incoming);
+            dragState = null;
+            updateAnswer();
+        });
+    });
+
+    pool.addEventListener("dragover", function (e) {
+        if (dragState && dragState.fromZone !== null) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+        }
+    });
+
+    pool.addEventListener("drop", function (e) {
+        e.preventDefault();
+        if (!dragState || dragState.fromZone === null) return;
+
+        var product  = dragState.product;
+        var fromZone = dragState.fromZone;
+
+        zoneContent[fromZone] = null;
+        clearZone(fromZone);
+        showPoolItem(product);
+
+        dragState = null;
+        updateAnswer();
+    });
+
+    nextBtn.addEventListener("click", function (e) {
+        if (!nextBtn.classList.contains("is-active")) e.preventDefault();
+    });
+
+})();
+</script>
+
 </body>
 </html>

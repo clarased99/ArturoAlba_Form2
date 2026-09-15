@@ -9,39 +9,60 @@
     <style>
         /* ===== TEMPLATE D: Drag & Drop ===== */
 
+        /* FIX 1 — Panel: anular padding heredado del grid base,
+           convertir a flex-columna ocupando toda la pantalla          */
         .quiz--template-d .quiz__panel--full {
             display: flex;
             flex-direction: column;
             height: 100vh;
+            padding: 0;
+            gap: 0;
             overflow: hidden;
         }
 
+        /* FIX 1 — Header: ancho completo, centrado sobre toda la página */
         .quiz--template-d .quiz__header {
-            padding: 2.5rem 3rem 1.25rem;
+            width: 100%;
+            box-sizing: border-box;
+            padding: 3.5rem 4rem 1rem;
             text-align: center;
             flex-shrink: 0;
         }
 
-        .quiz--template-d .quiz__drag-hint {
-            font-family: 'Optima', 'Palatino Linotype', Palatino, serif;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-            font-size: 0.72rem;
-            letter-spacing: 0.16em;
-            margin-top: 0.55rem;
+        /* FIX 1 — La pregunta: anular margin: 0 0 2.5rem de .quiz__question
+           (que por orden de cascada aplasta el margin: 0 auto de --center)  */
+        .quiz--template-d .quiz__question.quiz__question--center {
+            margin: 0 auto;
+            max-width: 72rem;
+            text-align: center;
         }
 
-        /* Drag interface: pool (left) + drop area (right) */
+        /* FIX 3 — Subtítulo en Silka, frase normal, sin interletrado extra,
+           movido a la parte inferior (fuera del header)                      */
+        .quiz--template-d .quiz__drag-hint {
+            font-family: "Silka", sans-serif;
+            color: rgba(255, 255, 255, 0.48);
+            font-size: 0.88rem;
+            letter-spacing: normal;
+            text-transform: none;
+            text-align: center;
+            width: 100%;
+            flex-shrink: 0;
+            padding: 0.6rem 0;
+            box-sizing: border-box;
+        }
+
+        /* Drag interface: pool (2/3) + zona drop (1/3) */
         .quiz__drag-interface {
             flex: 1;
             display: flex;
-            overflow: hidden;
+            min-height: 0;
         }
 
-        /* ---- Pool (left side) ---- */
+        /* FIX 2 — Pool: ocupa 2/3 del ancho */
         .quiz__pool {
             position: relative;
-            width: 50%;
+            width: 66.67%;
             flex-shrink: 0;
         }
 
@@ -50,7 +71,7 @@
             cursor: grab;
             user-select: none;
             transform: rotate(var(--rot, 0deg));
-            transition: transform 0.18s ease, z-index 0s;
+            transition: transform 0.18s ease;
             z-index: 1;
         }
 
@@ -65,24 +86,28 @@
 
         .quiz__drag-item img {
             display: block;
-            max-height: 175px;
+            max-height: 220px;
             width: auto;
             pointer-events: none;
-            filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.55));
+            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.55));
         }
 
-        /* Hover label: appears to the right of the image */
+        /* FIX 4 — Etiqueta: width fijo (evita colapso shrink-to-fit),
+           tamaño grande, izquierda, ~3-4 renglones                    */
         .quiz__drag-label {
             position: absolute;
             left: calc(100% + 14px);
             top: 50%;
             transform: translateY(-50%);
-            font-family: 'Optima', 'Palatino Linotype', Palatino, serif;
+            font-family: "Optima", "Palatino Linotype", Palatino, serif;
             color: #ffffff;
             text-transform: uppercase;
-            font-size: 0.68rem;
-            letter-spacing: 0.15em;
-            white-space: nowrap;
+            font-size: 1.15rem;
+            letter-spacing: 0.07em;
+            line-height: 1.25;
+            white-space: normal;
+            width: 200px;
+            text-align: left;
             opacity: 0;
             transition: opacity 0.2s ease;
             pointer-events: none;
@@ -92,9 +117,9 @@
             opacity: 1;
         }
 
-        /* ---- Drop area (right side) ---- */
+        /* Zona de drop: 1/3 del ancho */
         .quiz__drop-area {
-            width: 50%;
+            width: 33.33%;
             flex-shrink: 0;
             display: flex;
             align-items: center;
@@ -104,9 +129,10 @@
         }
 
         .quiz__drop-zone {
-            width: 130px;
-            height: 190px;
-            border: 1.5px solid #e07630;
+            width: 200px;
+            height: 290px;
+            border: 1.5px solid #ff6b00;
+            padding: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -117,7 +143,7 @@
 
         .quiz__drop-zone.is-over {
             background-color: rgba(224, 118, 48, 0.12);
-            border-color: #ff9550;
+            border-color: #ff6b00;
         }
 
         .quiz__drop-zone .quiz__zone-img {
@@ -129,11 +155,25 @@
         }
 
         .quiz__drop-plus {
-            font-family: 'Optima', 'Palatino Linotype', Palatino, serif;
-            color: #e07630;
-            font-size: 1.9rem;
+            font-family: "Optima", "Palatino Linotype", Palatino, serif;
+            color: #ff6b00;
+            font-size: 5rem;
+            font-weight: bolder;
             flex-shrink: 0;
             user-select: none;
+        }
+
+        /* FIX 5 — Botón: alineado a la derecha, sin movimiento al hover */
+        .quiz--template-d .quiz__next {
+            align-self: flex-end;
+            margin: 0 3.5rem 2rem 0;
+        }
+
+        /* Neutralizar el scale que causa la sensación de movimiento */
+        .quiz--template-d .quiz__next.is-active:hover,
+        .quiz--template-d .quiz__next.is-active:focus-visible {
+            transform: none;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -143,59 +183,58 @@
 
     <div class="quiz__header">
         <h1 class="quiz__question quiz__question--center">&#191;Qu&#233; productos de Arturo Alba se combinan para realizar la Doble Limpieza?</h1>
-        <p class="quiz__drag-hint">Arrastra un producto a cada rect&#225;ngulo</p>
     </div>
 
     <div class="quiz__drag-interface">
 
-        <!-- Pool: 7 productos dispersos -->
+        <!-- Pool: 7 productos dispersos en 2/3 de la pantalla -->
         <div class="quiz__pool" id="pool">
 
             <div class="quiz__drag-item" id="item-agua-micelar" data-product="agua-micelar"
-                 draggable="true" style="left:4%;top:6%;--rot:-7deg">
+                 draggable="true" style="left:17%;top:19%;--rot:-7deg">
                 <img src="assets/images/test-1-agua-micelar-D.png" alt="Agua Micelar" draggable="false">
-                <span class="quiz__drag-label">Agua Micelar</span>
+                <span class="quiz__drag-label">Agua <br> Micelar</span>
             </div>
 
             <div class="quiz__drag-item" id="item-limpiadora-espumosa" data-product="limpiadora-espumosa"
-                 draggable="true" style="left:32%;top:3%;--rot:5deg">
+                 draggable="true" style="left:74%;top:22%;--rot:12deg">
                 <img src="assets/images/test-1-limpiadora-espumosa-D.png" alt="Limpiadora Espumosa" draggable="false">
                 <span class="quiz__drag-label">Limpiadora Espumosa</span>
             </div>
 
             <div class="quiz__drag-item" id="item-manteca" data-product="manteca"
-                 draggable="true" style="left:6%;top:40%;--rot:-4deg">
+                 draggable="true" style="left:10%;top:50%;--rot:10deg">
                 <img src="assets/images/test-1-manteca-D.png" alt="Manteca de Primera Limpieza" draggable="false">
-                <span class="quiz__drag-label">Manteca de Primera Limpieza</span>
+                <span class="quiz__drag-label">Manteca <br> de Primera <br> Limpieza</span>
             </div>
 
             <div class="quiz__drag-item" id="item-infusion" data-product="infusion"
-                 draggable="true" style="left:37%;top:34%;--rot:7deg">
-                <img src="assets/images/test-1-infusion-D.png" alt="Infusi&#243;n Absoluta Exopept&#237;dica" draggable="false">
+                 draggable="true" style="left:42%;top:10%;--rot:0deg">
+                <img src="assets/images/test-1-infusion-D.png" alt="Infusi&#243;n Absoluta" draggable="false">
                 <span class="quiz__drag-label">Infusi&#243;n Absoluta</span>
             </div>
 
             <div class="quiz__drag-item" id="item-rapsodia" data-product="rapsodia"
-                 draggable="true" style="left:2%;top:68%;--rot:-9deg">
+                 draggable="true" style="left:34%;top:81%;--rot:-9deg">
                 <img src="assets/images/test-1-rapsodia-D.png" alt="Rapsodia Alta Recuperaci&#243;n" draggable="false">
                 <span class="quiz__drag-label">Rapsodia Alta Recuperaci&#243;n</span>
             </div>
 
             <div class="quiz__drag-item" id="item-retinoide" data-product="retinoide"
-                 draggable="true" style="left:33%;top:61%;--rot:4deg">
+                 draggable="true" style="left:64%;top:62%;--rot:-10deg">
                 <img src="assets/images/test-1-retinoide-D.png" alt="Retinoide Extremo" draggable="false">
                 <span class="quiz__drag-label">Retinoide Extremo</span>
             </div>
 
             <div class="quiz__drag-item" id="item-solucion-exfoliante" data-product="solucion-exfoliante"
-                 draggable="true" style="left:17%;top:75%;--rot:-6deg">
-                <img src="assets/images/test-1-solucion-exfoliante-D.png" alt="Soluci&#243;n Qu&#237;mica Exfoliante" draggable="false">
+                 draggable="true" style="left:42%;top:48%;--rot:-7deg">
+                <img src="assets/images/test-1-solucion-exfoliante-D.png" alt="Soluci&#243;n Exfoliante" draggable="false">
                 <span class="quiz__drag-label">Soluci&#243;n Exfoliante</span>
             </div>
 
         </div>
 
-        <!-- Zona de drop: dos rectángulos con borde naranja + símbolo + -->
+        <!-- Zona de drop: dos rectángulos + símbolo + -->
         <div class="quiz__drop-area">
             <div class="quiz__drop-zone" id="zone-0" data-zone="0"></div>
             <div class="quiz__drop-plus" aria-hidden="true">+</div>
@@ -203,6 +242,8 @@
         </div>
 
     </div>
+
+    <p class="quiz__drag-hint">Arrastra un producto a cada rect&#225;ngulo</p>
 
     <a href="test-2.html" class="quiz__next" aria-disabled="true">SIGUIENTE &#8594;</a>
 
@@ -225,7 +266,7 @@
     var zoneContent = [null, null];
 
     /* Estado del arrastre en curso */
-    var dragState = null; // { product: string, fromZone: null|0|1 }
+    var dragState = null; // { product: string, fromZone: null | 0 | 1 }
 
     /* -------- Utilidades -------- */
 
@@ -258,7 +299,7 @@
         img.className = "quiz__zone-img";
         img.draggable = true;
 
-        /* Al arrastrar la imagen de la zona */
+        /* Al arrastrar la imagen ya colocada en la zona */
         img.addEventListener("dragstart", function (e) {
             dragState = { product: product, fromZone: zoneIndex };
             e.dataTransfer.effectAllowed = "move";
@@ -293,12 +334,12 @@
             dragState = { product: product, fromZone: null };
             e.dataTransfer.effectAllowed = "move";
             e.dataTransfer.setData("text/plain", product);
-            /* Ocultar tras un tick para que el ghost se renderice */
+            /* Ocultar tras un tick para que el ghost se renderice bien */
             setTimeout(function () { item.style.visibility = "hidden"; }, 0);
         });
 
         item.addEventListener("dragend", function () {
-            /* Si el producto no quedó en ninguna zona, restaurar visibilidad */
+            /* Si el producto no quedó en ninguna zona, restaurar */
             if (zoneContent.indexOf(product) === -1) {
                 item.style.visibility = "visible";
             }
@@ -331,7 +372,7 @@
             var fromZone = dragState.fromZone;
             var existing = zoneContent[zoneIndex];
 
-            /* Misma zona: no hacer nada */
+            /* Misma zona: sin cambios */
             if (fromZone === zoneIndex) {
                 dragState = null;
                 return;
@@ -341,12 +382,12 @@
                 /* Pool → Zona */
                 hidePoolItem(incoming);
                 if (existing !== null) {
-                    /* La zona tenía algo: devolver al pool */
+                    /* Zona ocupada: devolver su contenido al pool */
                     showPoolItem(existing);
                     clearZone(zoneIndex);
                 }
             } else {
-                /* Zona → Zona */
+                /* Zona → Zona (intercambio o traslado) */
                 if (existing !== null) {
                     /* Intercambio: el contenido actual va a la zona de origen */
                     zoneContent[fromZone] = existing;
@@ -365,7 +406,7 @@
         });
     });
 
-    /* -------- Pool: acepta imágenes de zona (devolución al pool) -------- */
+    /* -------- Pool: acepta devoluciones desde las zonas -------- */
 
     pool.addEventListener("dragover", function (e) {
         if (dragState && dragState.fromZone !== null) {

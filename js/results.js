@@ -44,10 +44,15 @@
         var given = readAnswer(question);
         var options = block.querySelectorAll(".results__option");
         var isCorrectAnswer = false;
+        var isDrag = block.dataset.type === "drag";
 
         options.forEach(function (opt) {
             var isCorrect = opt.dataset.correct === "true";
-            var wasSelected = opt.dataset.value === given;
+            /* Drag questions store a composite "producto+producto" value;
+               regular questions store a letter "A"/"B"/"C"/"D"          */
+            var wasSelected = isDrag
+                ? (opt.dataset.dragValue === given)
+                : (opt.dataset.value === given);
 
             if (isCorrect) {
                 opt.classList.add("is-correct");

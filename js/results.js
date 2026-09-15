@@ -66,6 +66,24 @@
         });
 
         if (isCorrectAnswer) score++;
+
+        /* Para preguntas de arrastre donde la combinación elegida
+           no coincide con ninguna opción listada, mostrar nota */
+        if (isDrag && given !== null && !isCorrectAnswer) {
+            var noMatchedOption = true;
+            options.forEach(function (opt) {
+                if (opt.classList.contains("is-wrong")) noMatchedOption = false;
+            });
+            if (noMatchedOption) {
+                var note = document.createElement("p");
+                note.style.cssText = "margin-top:0.6rem;font-size:0.82rem;opacity:0.55;font-family:inherit;letter-spacing:0.04em;text-transform:uppercase;";
+                var parts = given.split("+").map(function (p) {
+                    return p.charAt(0).toUpperCase() + p.slice(1).replace(/-/g, " ");
+                });
+                note.textContent = "Tu combinación: " + parts.join(" + ");
+                block.appendChild(note);
+            }
+        }
     });
 
     /* Determinar mensaje según umbrales explícitos */

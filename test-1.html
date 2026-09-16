@@ -183,16 +183,23 @@
 
         /* ===== MÓVIL ===== */
         @media (max-width: 768px) {
+            /* Panel: altura libre para poder hacer scroll */
+            .quiz--template-d .quiz__panel--full {
+                height: auto;
+                min-height: 100svh;
+                overflow: visible;
+            }
             .quiz--template-d .quiz__header {
                 padding: 2rem 1.5rem 0.75rem;
             }
             .quiz__drag-interface {
+                flex: none;
                 flex-direction: column-reverse;
             }
+            /* Pool: altura fija — ajusta este valor para dar más o menos espacio */
             .quiz__pool {
                 width: 100%;
-                flex: 1;
-                min-height: 0;
+                height: 640px;
             }
             .quiz__drop-area {
                 width: 100%;
@@ -213,7 +220,7 @@
                 font-size: 1.4rem;
             }
             .quiz__drag-label {
-                top: calc(100% + 4px);
+                top: calc(100% + var(--gap, 4px));
                 left: 50%;
                 transform: translateX(-50%);
                 font-size: 0.55rem;
@@ -246,6 +253,18 @@
                 flex-shrink: 0;
                 padding: 0.4rem 1rem;
             }
+
+            /* ── Posición y gap individual por producto en móvil ──────────
+               left / top : mueve el producto dentro del pool
+               --gap      : espacio entre imagen y etiqueta de ese producto
+               ─────────────────────────────────────────────────────────── */
+            #item-agua-micelar        { left: 11% !important; top: 5% !important; --gap: 4px; }
+            #item-limpiadora-espumosa { left: 74% !important; top: 7% !important; --gap: 4px; }
+            #item-manteca             { left: 10% !important; top: 40% !important; --gap: -17px; }
+            #item-infusion            { left: 42% !important; top: -5% !important; --gap: -2px; }
+            #item-rapsodia            { left: 34% !important; top: 66% !important; --gap: -17px; }
+            #item-retinoide           { left: 64% !important; top: 52% !important; --gap: 4px; }
+            #item-solucion-exfoliante { left: 42% !important; top: 33% !important; --gap: -14px; }
         }
     </style>
 </head>

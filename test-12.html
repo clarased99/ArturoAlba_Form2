@@ -169,16 +169,23 @@
 
         /* ===== MÓVIL ===== */
         @media (max-width: 768px) {
+            /* Panel: altura libre para poder hacer scroll */
+            .quiz--template-d .quiz__panel--full {
+                height: auto;
+                min-height: 100svh;
+                overflow: visible;
+            }
             .quiz--template-d .quiz__header {
                 padding: 2rem 1.5rem 0.75rem;
             }
             .quiz__drag-interface {
+                flex: none;
                 flex-direction: column-reverse;
             }
+            /* Pool: altura fija — ajusta este valor para dar más o menos espacio */
             .quiz__pool {
                 width: 100%;
-                flex: 1;
-                min-height: 0;
+                height: 640px;
             }
             .quiz__drop-area {
                 width: 100%;
@@ -199,7 +206,7 @@
                 font-size: 1.4rem;
             }
             .quiz__drag-label {
-                top: calc(100% + 4px);
+                top: calc(100% + var(--gap, 4px));
                 left: 50%;
                 transform: translateX(-50%);
                 font-size: 0.55rem;
@@ -232,6 +239,17 @@
                 flex-shrink: 0;
                 padding: 0.4rem 1rem;
             }
+
+            /* ── Posición y gap individual por producto en móvil ──────────
+               left / top : mueve el producto dentro del pool
+               --gap      : espacio entre imagen y etiqueta de ese producto
+               ─────────────────────────────────────────────────────────── */
+            #item-infusion            { left: 23% !important; top: 5%  !important; --gap: 4px; }
+            #item-bruma               { left: 49% !important; top: 3%  !important; --gap: 4px; }
+            #item-retinoide           { left: 10% !important; top: 39% !important; --gap: 4px; }
+            #item-hidrolipidica       { left: 68% !important; top: 32% !important; --gap: 4px; }
+            #item-limpiadora-espumosa { left: 26% !important; top: 61% !important; --gap: 4px; }
+            #item-rapsodia            { left: 54% !important; top: 70% !important; --gap: 4px; }
         }
     </style>
 </head>

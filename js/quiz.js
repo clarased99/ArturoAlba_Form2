@@ -3,6 +3,16 @@
 
     var body = document.body;
     var page = body.dataset.question;
+
+    /* Contador de pregunta (N/12) — aparece en todas las páginas del test */
+    if (page) {
+        var counter = document.createElement("div");
+        counter.className = "quiz__counter";
+        counter.setAttribute("aria-label", "Pregunta " + page + " de 12");
+        counter.textContent = page + "/12";
+        body.appendChild(counter);
+    }
+
     var options = document.querySelectorAll(".quiz__option, .quiz__image-option");
     var nextBtn = document.querySelector(".quiz__next");
 

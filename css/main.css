@@ -407,6 +407,25 @@ body.quiz--full .quiz__restart {
 }
 
 /* =============================================
+   Contador de pregunta (1/12, 2/12…)
+============================================= */
+.quiz__counter {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 10;
+    font-family: "Silka", sans-serif;
+    font-size: 1.1rem;
+    color: #302e2b;
+    pointer-events: none;
+    line-height: 1;
+}
+
+body.quiz--full .quiz__counter {
+    color: #ffffff;
+}
+
+/* =============================================
    Panel izquierdo — pregunta y opciones
 ============================================= */
 .quiz__panel--question {
@@ -584,6 +603,11 @@ body.quiz--full .quiz__restart {
     .quiz__restart {
         top: 1.25rem;
         left: 1.25rem;
+    }
+
+    .quiz__counter {
+        top: 1.25rem;
+        right: 1.25rem;
     }
 
     .quiz__panel--full {

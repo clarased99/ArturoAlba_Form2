@@ -11,13 +11,7 @@
         { title: "Maestría absoluta", text: "Dominas la ciencia y el arte que hay detrás de cada fórmula. Tu conocimiento está a la altura de la propia filosofía Arturo Alba." }
     ];
 
-    /* Umbrales para 12 preguntas:
-       ≥12 → Maestría absoluta  (equivale a 5/5)
-       ≥10 → Casi maestría       (equivale a 4/5)
-       ≥7  → Afinando el instinto (equivale a 3/5)
-       ≥5  → El umbral del conocimiento (equivale a 2/5)
-       ≥2  → Una gota de precisión (equivale a 1/5)
-        0  → El primer paso de la fórmula */
+    /* Umbrales para 12 preguntas */
     var THRESHOLDS = [
         { min: 12, index: 5 },
         { min: 10, index: 4 },
@@ -27,82 +21,120 @@
         { min: 0,  index: 0 }
     ];
 
+    /* Nombres legibles de cada producto (para combinaciones libres no listadas) */
+    var PRODUCT_NAMES = {
+        "agua-micelar":        "Agua Micelar",
+        "limpiadora-espumosa": "Limpiadora Espumosa Recuperadora",
+        "manteca":             "Manteca de Primera Limpieza",
+        "infusion":            "Infusión Absoluta Exo-Peptídica",
+        "rapsodia":            "Rapsodia Alta Recuperación",
+        "retinoide":           "Retinoide Extremo",
+        "solucion-exfoliante": "Solución Química Exfoliante",
+        "dmae":                "Firmeza y Luminosidad DMAE-Ursólico",
+        "sod":                 "Antioxidante y Luminosidad SOD-Ferúlico",
+        "hidrolipidica":       "Hidratante Regenerante Hidrolipídica",
+        "normocorrectora":     "Mascarilla Normo-Correctora",
+        "bruma":               "Bruma Fitoactiva Calmante"
+    };
+
     function readAnswer(question) {
-        try {
-            return sessionStorage.getItem("respuesta-" + question);
-        } catch (e) {
-            return null;
-        }
+        try { return sessionStorage.getItem("respuesta-" + question); }
+        catch (e) { return null; }
+    }
+
+    /* Devuelve el HTML de una fila de resultado con flecha */
+    function makeRow(cssClass, text) {
+        return '<li><button type="button" class="results__option ' + cssClass + '">' +
+            '<span class="results__option-icon" aria-hidden="true">→</span>' +
+            '<span class="results__option-text">' + text + '</span>' +
+            '</button></li>';
+    }
+
+    /* Convierte "slug-a+slug-b" en texto legible */
+    function slugsToText(combined) {
+        return combined.split("+").map(function (slug) {
+            return PRODUCT_NAMES[slug] || slug.replace(/-/g, " ");
+        }).join(" + ");
     }
 
     var blocks = document.querySelectorAll(".results__question-block");
-    var total = blocks.length;
-    var score = 0;
+    var total  = blocks.length;
+    var score  = 0;
 
     blocks.forEach(function (block) {
         var question = block.dataset.question;
-        var given = readAnswer(question);
+        var given    = readAnswer(question);
+        var isDrag   = block.dataset.type === "drag";
+
+        /* ----------------------------------------------------------------
+           PREGUNTAS DE ARRASTRE (Q1, Q9, Q12)
+           Muestra solo la combinación correcta (verde) y, si el usuario
+           se equivocó, su combinación (rojo). Sin las 4 opciones extra.
+        ---------------------------------------------------------------- */
+        if (isDrag) {
+            var optionsList = block.querySelector(".results__options");
+            var correctOpt  = block.querySelector(".results__option[data-correct='true']");
+            var correctValue = correctOpt ? correctOpt.dataset.dragValue : null;
+            var correctText  = correctOpt
+                ? correctOpt.querySelector(".results__option-text").textContent
+                : slugsToText(correctValue || "");
+
+            var isCorrect = (given !== null && given === correctValue);
+            if (isCorrect) score++;
+
+            /* Fila verde: combinación correcta (siempre visible) */
+            var html = makeRow("is-correct", correctText);
+
+            /* Fila roja: combinación del usuario (solo si falló) */
+            if (!isCorrect && given !== null) {
+                /* Buscar texto descriptivo entre las opciones del HTML */
+                var userText = null;
+                block.querySelectorAll(".results__option").forEach(function (opt) {
+                    if (opt.dataset.dragValue === given) {
+                        userText = opt.querySelector(".results__option-text").textContent;
+                    }
+                });
+                /* Si no estaba entre las opciones, construirlo desde slugs */
+                if (!userText) { userText = slugsToText(given); }
+                html += makeRow("is-wrong", "Tu combinación: " + userText);
+            }
+
+            optionsList.innerHTML = html;
+            return;
+        }
+
+        /* ----------------------------------------------------------------
+           PREGUNTAS NORMALES (A / B / C / D)
+        ---------------------------------------------------------------- */
         var options = block.querySelectorAll(".results__option");
         var isCorrectAnswer = false;
-        var isDrag = block.dataset.type === "drag";
 
         options.forEach(function (opt) {
-            var isCorrect = opt.dataset.correct === "true";
-            /* Drag questions store a composite "producto+producto" value;
-               regular questions store a letter "A"/"B"/"C"/"D"          */
-            var wasSelected = isDrag
-                ? (opt.dataset.dragValue === given)
-                : (opt.dataset.value === given);
+            var isCorrect   = opt.dataset.correct === "true";
+            var wasSelected = opt.dataset.value === given;
 
-            if (isCorrect) {
-                opt.classList.add("is-correct");
-            }
-            if (wasSelected && !isCorrect) {
-                opt.classList.add("is-wrong");
-            }
-            if (wasSelected && isCorrect) {
-                isCorrectAnswer = true;
-            }
+            if (isCorrect)              { opt.classList.add("is-correct"); }
+            if (wasSelected && !isCorrect) { opt.classList.add("is-wrong"); }
+            if (wasSelected && isCorrect)  { isCorrectAnswer = true; }
         });
 
         if (isCorrectAnswer) score++;
-
-        /* Para preguntas de arrastre donde la combinación elegida
-           no coincide con ninguna opción listada, mostrar nota */
-        if (isDrag && given !== null && !isCorrectAnswer) {
-            var noMatchedOption = true;
-            options.forEach(function (opt) {
-                if (opt.classList.contains("is-wrong")) noMatchedOption = false;
-            });
-            if (noMatchedOption) {
-                var note = document.createElement("p");
-                note.style.cssText = "margin-top:0.6rem;font-size:0.82rem;opacity:0.55;font-family:inherit;letter-spacing:0.04em;text-transform:uppercase;";
-                var parts = given.split("+").map(function (p) {
-                    return p.charAt(0).toUpperCase() + p.slice(1).replace(/-/g, " ");
-                });
-                note.textContent = "Tu combinación: " + parts.join(" + ");
-                block.appendChild(note);
-            }
-        }
     });
 
-    /* Determinar mensaje según umbrales explícitos */
+    /* Determinar mensaje según umbrales */
     var messageIndex = 0;
     for (var i = 0; i < THRESHOLDS.length; i++) {
-        if (score >= THRESHOLDS[i].min) {
-            messageIndex = THRESHOLDS[i].index;
-            break;
-        }
+        if (score >= THRESHOLDS[i].min) { messageIndex = THRESHOLDS[i].index; break; }
     }
     var msg = MESSAGES[messageIndex] || MESSAGES[0];
 
-    var scoreEl = document.getElementById("scoreValue");
-    var totalEl = document.getElementById("totalQuestions");
-    var titleEl = document.getElementById("resultTitle");
+    var scoreEl   = document.getElementById("scoreValue");
+    var totalEl   = document.getElementById("totalQuestions");
+    var titleEl   = document.getElementById("resultTitle");
     var messageEl = document.getElementById("resultMessage");
 
-    if (scoreEl) scoreEl.textContent = score;
-    if (totalEl) totalEl.textContent = total;
-    if (titleEl) titleEl.textContent = msg.title;
+    if (scoreEl)   scoreEl.textContent   = score;
+    if (totalEl)   totalEl.textContent   = total;
+    if (titleEl)   titleEl.textContent   = msg.title;
     if (messageEl) messageEl.textContent = msg.text;
 })();

@@ -7,27 +7,40 @@
     <link rel="icon" href="assets/images/favicon.png">
     <link rel="stylesheet" href="css/main.css">
     <style>
-        /* Fix: evitar desbordamiento y barra de desplazamiento lateral en Q8 */
-        html, body.quiz--q8 {
-            overflow: hidden;
-            height: 100%;
+        /* Fix Q8 desktop: comprimir opciones para que quepan sin scroll */
+        @media (min-width: 901px) {
+            html, body.quiz--q8 {
+                overflow: hidden;
+                height: 100%;
+            }
+            .quiz__panel--question {
+                overflow: hidden;
+            }
+            .quiz__panel--question .quiz__question {
+                margin-bottom: 0.5rem !important;
+            }
+            .quiz__options {
+                gap: 0 !important;
+                margin: 0 !important;
+            }
+            .quiz__options li {
+                margin-bottom: 0 !important;
+            }
+            .quiz__option {
+                padding: 0.3rem 1rem !important;
+                line-height: 1.25 !important;
+            }
         }
-        .quiz__panel--question {
-            overflow: hidden;
-        }
-        .quiz__panel--question .quiz__question {
-            margin-bottom: 0.5rem !important;
-        }
-        .quiz__options {
-            gap: 0 !important;
-            margin: 0 !important;
-        }
-        .quiz__options li {
-            margin-bottom: 0 !important;
-        }
-        .quiz__option {
-            padding: 0.3rem 1rem !important;
-            line-height: 1.25 !important;
+
+        /* Fix Q8 móvil: scroll natural, opciones legibles */
+        @media (max-width: 900px) {
+            .quiz__option {
+                font-size: 1.1rem;
+                line-height: 1.35;
+            }
+            .quiz__options {
+                gap: 1rem;
+            }
         }
     </style>
 </head>
